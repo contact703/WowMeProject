@@ -1,0 +1,61 @@
+{
+  "common": {
+    "appName": "WowMe",
+    "tagline": "The Anonymous Social Network for Human Connection"
+  },
+  "nav": {
+    "home": "Home",
+    "submit": "Share Your Story",
+    "moderate": "Moderate",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
+  },
+  "home": {
+    "hero": {
+      "title": "The Anonymous Social Network for Human Connection",
+      "subtitle": "Share your deepest feelings, secrets, and experiences anonymously. Connect with billions through AI-powered voice transformation and translation.",
+      "cta": "Share Your Story",
+      "explore": "Explore Stories"
+    },
+    "feed": {
+      "title": "Recent Reflections",
+      "loading": "Loading stories...",
+      "empty": "No stories yet. Be the first to share!",
+      "signInToReact": "Please sign in to react"
+    }
+  },
+  "submit": {
+    "title": "Share Your Story",
+    "description": "Your story will be anonymized, rewritten by AI, and shared with the world in multiple languages. Your voice will be transformed to protect your identity.",
+    "form": {
+      "language": "Language",
+      "story": "Your Story",
+      "placeholder": "Share your feelings, secrets, dreams, or experiences... Be honest and authentic. Your identity is protected.",
+      "consent": "I consent to my story being anonymized, rewritten by AI, translated to multiple languages, and shared publicly on WowMe.",
+      "submit": "Submit Story",
+      "submitting": "Submitting..."
+    }
+  },
+  "moderate": {
+    "title": "Moderation Panel",
+    "description": "Review pending stories and approve or reject them.",
+    "approve": "Approve",
+    "reject": "Reject",
+    "process": "Process with AI",
+    "processing": "Processing...",
+    "noPending": "No pending stories to moderate."
+  },
+  "auth": {
+    "title": "Welcome Back",
+    "description": "Sign in with your email to share and explore anonymous stories.",
+    "email": "Email Address",
+    "sendLink": "Send Magic Link",
+    "sending": "Sending...",
+    "checkEmail": "Check your email for the magic link!",
+    "note": "We'll send you a magic link to sign in without a password."
+  },
+  "footer": {
+    "disclaimer": "All stories are anonymized and rewritten by AI. Original content is never exposed. This platform is for emotional support and connection, not professional therapy.",
+    "copyright": "© 2025 WowMe. A safe space for human connection."
+  }
+}
