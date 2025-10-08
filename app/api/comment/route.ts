@@ -70,21 +70,33 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const { data: comments, error } = await supabase
+    const { data: rawComments, error } = await supabase
       .from('comments')
       .select(`
-        *,
-        profiles:user_id(display_name, avatar_url)
+        id,
+        text,
+        created_at,
+        user_id,
+        profiles!comments_user_id_fkey(display_name, avatar_url)
       `)
       .eq('suggested_id', suggestedId)
       .order('created_at', { ascending: true })
 
     if (error) {
+      console.error('Error fetching comments:', error)
       return NextResponse.json(
         { error: 'Failed to fetch comments' },
         { status: 500 }
       )
     }
+
+    // Transform the data to match expected format
+    const comments = (rawComments || []).map((comment: any) => ({
+      id: comment.id,
+      text: comment.text,
+      created_at: comment.created_at,
+      profiles: comment.profiles || { display_name: 'Anonymous', avatar_url: null }
+    }))
 
     return NextResponse.json({
       success: true,
