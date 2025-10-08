@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 
-// Use OpenAI directly (API key is already configured in environment)
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
-
 export async function POST(request: NextRequest) {
+  // Check if API key is available
+  if (!process.env.OPENAI_API_KEY) {
+    console.error('OPENAI_API_KEY not configured')
+    return NextResponse.json(
+      { error: 'Transcription service not configured' },
+      { status: 503 }
+    )
+  }
+
+  // Initialize OpenAI client
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
   try {
     const formData = await request.formData()
     const audioFile = formData.get('audio') as File
