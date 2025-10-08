@@ -94,19 +94,22 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-black text-white">
       {/* Header */}
       <header className="border-b border-white/10 backdrop-blur-sm bg-black/30 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <span className="text-2xl">🌀</span>
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-2">
+          {/* Logo - Compacto em mobile */}
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+              <span className="text-xl md:text-2xl">🌀</span>
             </div>
-            <h1 className="text-2xl font-bold">WowMe</h1>
+            <h1 className="text-lg md:text-2xl font-bold hidden sm:block">WowMe</h1>
           </Link>
 
-          <div className="flex items-center gap-4">
+          {/* Actions - Responsivo */}
+          <div className="flex items-center gap-2 md:gap-4 flex-wrap justify-end">
+            {/* Language Selector - Menor em mobile */}
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm"
+              className="bg-white/10 border border-white/20 rounded-lg px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm"
             >
               <option value="en">English</option>
               <option value="pt-BR">Português</option>
@@ -116,23 +119,28 @@ export default function Home() {
 
             {user ? (
               <>
+                {/* Profile - Ícone em mobile, texto em desktop */}
                 <Link
                   href="/profile"
-                  className="bg-white/10 px-4 py-2 rounded-lg font-medium hover:bg-white/20 transition"
+                  className="bg-white/10 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:bg-white/20 transition"
                 >
-                  👤 Profile
+                  <span className="md:hidden">👤</span>
+                  <span className="hidden md:inline">👤 Profile</span>
                 </Link>
+                
+                {/* Share Story - Ícone em mobile, texto em desktop */}
                 <Link
                   href="/submit"
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 rounded-lg font-medium hover:opacity-90 transition"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:opacity-90 transition"
                 >
-                  ✨ Share Your Story
+                  <span className="md:hidden">✨</span>
+                  <span className="hidden md:inline">✨ Share Your Story</span>
                 </Link>
               </>
             ) : (
               <Link
                 href="/auth"
-                className="bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 rounded-lg font-medium hover:opacity-90 transition"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:opacity-90 transition"
               >
                 Sign In
               </Link>
