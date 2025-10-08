@@ -2,19 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 
 export async function POST(request: NextRequest) {
-  // Check if API key is available
-  if (!process.env.OPENAI_API_KEY) {
-    console.error('OPENAI_API_KEY not configured')
-    return NextResponse.json(
-      { error: 'Transcription service not configured' },
-      { status: 503 }
-    )
-  }
-
-  // Initialize OpenAI client
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  })
   try {
     const formData = await request.formData()
     const audioFile = formData.get('audio') as File
@@ -34,17 +21,32 @@ export async function POST(request: NextRequest) {
       language: language || 'en'
     })
 
-    // Convert File to Buffer for OpenAI
+    // Check if GROQ_API_KEY is available
+    if (!process.env.GROQ_API_KEY) {
+      console.error('GROQ_API_KEY not configured')
+      return NextResponse.json(
+        { error: 'Transcription service not configured' },
+        { status: 503 }
+      )
+    }
+
+    // Initialize Groq client
+    const openai = new OpenAI({
+      apiKey: process.env.GROQ_API_KEY,
+      baseURL: 'https://api.groq.com/openai/v1',
+    })
+
+    // Convert File to Buffer
     const arrayBuffer = await audioFile.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
     
-    // Create a File-like object that OpenAI expects
+    // Create a File-like object
     const file = new File([buffer], 'audio.webm', { type: 'audio/webm' })
 
-    // Transcribe with OpenAI Whisper
+    // Transcribe with Groq Whisper
     const transcription = await openai.audio.transcriptions.create({
       file: file,
-      model: 'whisper-1',
+      model: 'whisper-large-v3',
       language: language || 'en',
       response_format: 'json',
     })
@@ -63,3 +65,4 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+

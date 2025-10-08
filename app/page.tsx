@@ -21,6 +21,7 @@ export default function Home() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [userName, setUserName] = useState<string>('')
   const [language, setLanguage] = useState('en')
   const [commentModalOpen, setCommentModalOpen] = useState(false)
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null)
@@ -29,9 +30,22 @@ export default function Home() {
   useEffect(() => {
     const supabase = createClient()
     
-    // Check auth status
-    supabase.auth.getUser().then(({ data }) => {
+    // Check auth status and load profile
+    supabase.auth.getUser().then(async ({ data }) => {
       setUser(data.user)
+      
+      if (data.user) {
+        // Load user profile to get display name
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('id', data.user.id)
+          .single()
+        
+        if (profile?.display_name) {
+          setUserName(profile.display_name)
+        }
+      }
     })
 
     // Load feed
@@ -125,7 +139,7 @@ export default function Home() {
                   className="bg-white/10 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:bg-white/20 transition whitespace-nowrap"
                 >
                   <span className="inline md:hidden">👤</span>
-                  <span className="hidden md:inline">Profile</span>
+                  <span className="hidden md:inline">{userName || 'Profile'}</span>
                 </Link>
                 
                 {/* Share Story - Compacto em mobile */}
