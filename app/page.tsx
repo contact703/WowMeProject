@@ -119,22 +119,22 @@ export default function Home() {
 
             {user ? (
               <>
-                {/* Profile - Ícone em mobile, texto em desktop */}
+                {/* Profile - Compacto em mobile */}
                 <Link
                   href="/profile"
-                  className="bg-white/10 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:bg-white/20 transition"
+                  className="bg-white/10 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:bg-white/20 transition whitespace-nowrap"
                 >
-                  <span className="md:hidden">👤</span>
-                  <span className="hidden md:inline">👤 Profile</span>
+                  <span className="inline md:hidden">👤</span>
+                  <span className="hidden md:inline">Profile</span>
                 </Link>
                 
-                {/* Share Story - Ícone em mobile, texto em desktop */}
+                {/* Share Story - Compacto em mobile */}
                 <Link
                   href="/submit"
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:opacity-90 transition"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:opacity-90 transition whitespace-nowrap"
                 >
-                  <span className="md:hidden">✨</span>
-                  <span className="hidden md:inline">✨ Share Your Story</span>
+                  <span className="inline md:hidden">✨</span>
+                  <span className="hidden md:inline">Share Story</span>
                 </Link>
               </>
             ) : (
