@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { MicIcon } from './Icons'
 
 interface AudioRecorderProps {
   onTranscriptionComplete: (text: string, audioBlob: Blob) => void
@@ -141,10 +142,8 @@ export default function AudioRecorder({ onTranscriptionComplete, language }: Aud
           onClick={startRecording}
           className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-red-500 text-white rounded-lg hover:from-red-600 hover:to-red-600 transition-all shadow-lg"
         >
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
-          </svg>
-          🎤 Record Audio
+          <MicIcon size={20} />
+          <span>Record Audio</span>
         </button>
       )}
 
@@ -162,7 +161,7 @@ export default function AudioRecorder({ onTranscriptionComplete, language }: Aud
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clipRule="evenodd" />
             </svg>
-            ⏹️ Stop Recording
+            <span>Stop Recording</span>
           </button>
         </div>
       )}
