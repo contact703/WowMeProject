@@ -63,10 +63,8 @@ export async function POST(request: NextRequest) {
         user_id: userId,
         text,
         language,
-        archetype: classification.archetype,
-        emotion_tone: classification.emotion_tone,
-        embedding,
         status: 'approved',
+        consent: true,
       })
       .select('id')
       .single()
@@ -78,27 +76,61 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Story inserted with ID:', story.id)
 
+    // Step 3.5: Insert embedding
+    console.log('💾 Inserting embedding...')
+    const { error: embeddingError } = await supabaseService
+      .from('stories_embeddings')
+      .insert({
+        story_id: story.id,
+        embedding,
+        archetype: classification.archetype,
+        emotion_tone: classification.emotion_tone,
+      })
+    
+    if (embeddingError) {
+      console.error('❌ Embedding insertion failed:', embeddingError)
+      // Continue anyway, embedding is optional for the story to exist
+    } else {
+      console.log('✅ Embedding inserted')
+    }
+
     // Step 4: Find and send similar story
     let receivedStoryId = null
     
     console.log('🔍 Finding similar story...')
     
-    // Get all approved stories (except this one)
+    // Get all approved stories with embeddings (except this one)
     const { data: allStories } = await supabaseService
       .from('stories')
-      .select('id, text, archetype, emotion_tone, embedding, language')
+      .select(`
+        id,
+        text,
+        language,
+        stories_embeddings (
+          embedding,
+          archetype,
+          emotion_tone
+        )
+      `)
       .eq('status', 'approved')
       .neq('id', story.id)
-      .not('embedding', 'is', null)
+      .not('stories_embeddings', 'is', null)
 
     if (allStories && allStories.length > 0) {
       console.log(`   Found ${allStories.length} potential stories`)
       
       // Calculate similarities
-      const similarities = allStories.map(s => ({
-        ...s,
-        similarity: cosineSimilarity(embedding, s.embedding)
-      }))
+      const similarities = allStories
+        .filter(s => s.stories_embeddings && s.stories_embeddings.embedding)
+        .map(s => ({
+          id: s.id,
+          text: s.text,
+          language: s.language,
+          archetype: s.stories_embeddings.archetype,
+          emotion_tone: s.stories_embeddings.emotion_tone,
+          embedding: s.stories_embeddings.embedding,
+          similarity: cosineSimilarity(embedding, s.stories_embeddings.embedding)
+        }))
       
       // Sort by similarity
       similarities.sort((a, b) => b.similarity - a.similarity)
