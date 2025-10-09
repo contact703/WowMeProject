@@ -258,8 +258,33 @@ export default function ProfilePage() {
                   </div>
                   <p className="text-gray-300 mb-4">{received.suggested_story.rewritten_text}</p>
                   <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-500">
-                      {new Date(received.created_at).toLocaleDateString()}
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={() => {
+                          const utterance = new SpeechSynthesisUtterance(received.suggested_story.rewritten_text)
+                          const langMap: { [key: string]: string } = {
+                            'en': 'en-US',
+                            'pt-BR': 'pt-BR',
+                            'pt': 'pt-BR',
+                            'es': 'es-ES',
+                            'zh': 'zh-CN'
+                          }
+                          utterance.lang = langMap[received.suggested_story.target_language] || 'en-US'
+                          utterance.rate = 0.9
+                          window.speechSynthesis.speak(utterance)
+                        }}
+                        className="flex items-center gap-2 text-gray-400 hover:text-red-500 transition"
+                        title="Listen to story"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                        </svg>
+                      </button>
+                      <div className="text-sm text-gray-500">
+                        {new Date(received.created_at).toLocaleDateString()}
+                      </div>
                     </div>
                     {!received.is_read && (
                       <button
