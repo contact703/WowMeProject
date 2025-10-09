@@ -11,7 +11,6 @@ export default function SubmitPage() {
   const [text, setText] = useState('')
   const [language, setLanguage] = useState('en')
   const [consent, setConsent] = useState(false)
-  const [consent2, setConsent2] = useState(false)
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
@@ -32,8 +31,8 @@ export default function SubmitPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!consent || !consent2) {
-      alert('Please agree to both consent terms')
+    if (!consent) {
+      alert('Please agree to the consent terms')
       return
     }
 
@@ -57,7 +56,6 @@ export default function SubmitPage() {
         alert('✨ Story submitted successfully! Check out a similar story from someone else...')
         setText('')
         setConsent(false)
-        setConsent2(false)
         
         // Redirect to received story page if available
         if (data.receivedStoryId) {
@@ -134,7 +132,7 @@ export default function SubmitPage() {
             </select>
           </div>
 
-          {/* First Consent */}
+          {/* Consent */}
           <div className={theme.classes.card}>
             <label className="flex items-start gap-3 cursor-pointer">
               <input
@@ -144,13 +142,9 @@ export default function SubmitPage() {
                 className={theme.classes.checkbox + ' mt-1'}
               />
               <div className="text-sm text-gray-300">
-                <div className="font-medium mb-2">I consent to:</div>
-                <ul className="space-y-1 text-gray-400">
-                  <li>• My story being anonymized and rewritten by AI</li>
-                  <li>• My voice being transformed (if using audio)</li>
-                  <li>• My story being translated to multiple languages</li>
-                  <li>• My story being shared anonymously with the community</li>
-                </ul>
+                I consent to my story being anonymized, rewritten by AI, translated to multiple languages, and shared publicly on WowMe. 
+                I understand that my original text will never be exposed, and my voice (if recorded) will be transformed to protect my identity. 
+                I confirm this is my personal experience and I have the right to share it.
               </div>
             </label>
           </div>
@@ -208,29 +202,12 @@ export default function SubmitPage() {
             </div>
           )}
 
-          {/* Second Consent */}
-          <div className={theme.classes.card}>
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={consent2}
-                onChange={(e) => setConsent2(e.target.checked)}
-                className={theme.classes.checkbox + ' mt-1'}
-              />
-              <div className="text-sm text-gray-300">
-                I consent to my story being anonymized, rewritten by AI, translated to multiple languages, and shared publicly on WowMe. 
-                I understand that my original text will never be exposed, and my voice (if recorded) will be transformed to protect my identity. 
-                I confirm this is my personal experience and I have the right to share it.
-              </div>
-            </label>
-          </div>
-
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={loading || !consent || !consent2 || text.trim().length < 10}
+            disabled={loading || !consent || text.trim().length < 10}
             className={`w-full py-4 rounded-lg font-medium text-lg transition ${
-              loading || !consent || !consent2 || text.trim().length < 10
+              loading || !consent || text.trim().length < 10
                 ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
                 : 'bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-600/30'
             }`}
