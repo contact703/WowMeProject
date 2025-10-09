@@ -124,6 +124,7 @@ Write a response story:`
       .from('suggested_stories')
       .insert({
         source_story_id: sourceStoryId,
+        similar_story_id: sourceStoryId, // Use same story as similar (AI generated)
         target_language: language,
         rewritten_text: generatedText,
         audio_url: null,
