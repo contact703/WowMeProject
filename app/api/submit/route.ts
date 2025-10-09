@@ -210,9 +210,143 @@ export async function POST(request: NextRequest) {
         }
       } else {
         console.log('⚠️ No similar story found (best similarity:', bestMatch?.similarity.toFixed(3), ')')
+        console.log('🤖 Generating AI fallback story...')
+        
+        // Generate AI fallback story
+        try {
+          const aiStoryPrompt = `Based on this personal story, write a short, empathetic response story (2-3 sentences) that shows understanding and offers hope or perspective. Keep it authentic and supportive.
+
+Original story: "${text}"
+
+Write a response story:`
+
+          const aiResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+            },
+            body: JSON.stringify({
+              model: 'llama-3.3-70b-versatile',
+              messages: [{ role: 'user', content: aiStoryPrompt }],
+              temperature: 0.7,
+              max_tokens: 200,
+            }),
+          })
+          
+          if (aiResponse.ok) {
+            const aiData = await aiResponse.json()
+            const generatedText = aiData.choices[0].message.content.trim()
+            
+            console.log('✅ AI story generated')
+            
+            const { data: suggestedStory } = await supabaseService
+              .from('suggested_stories')
+              .insert({
+                source_story_id: story.id,
+                target_language: language,
+                rewritten_text: generatedText,
+                audio_url: null,
+                model_versions: {
+                  llm: 'llama-3.3-70b-versatile',
+                  type: 'ai_generated_fallback',
+                  timestamp: new Date().toISOString(),
+                },
+              })
+              .select('id')
+              .single()
+            
+            if (suggestedStory) {
+              const { data: received } = await supabaseService
+                .from('user_received_stories')
+                .insert({
+                  user_id: userId,
+                  source_story_id: story.id,
+                  suggested_story_id: suggestedStory.id,
+                  is_read: false,
+                })
+                .select('id')
+                .single()
+              
+              if (received) {
+                receivedStoryId = received.id
+                console.log('🎉 AI fallback story sent to user:', received.id)
+              }
+            }
+          }
+        } catch (aiError) {
+          console.error('⚠️ AI fallback failed:', aiError)
+        }
       }
     } else {
       console.log('⚠️ No stories available in database')
+      console.log('🤖 Generating AI fallback story...')
+      
+      // Generate AI fallback story when database is empty
+      try {
+        const aiStoryPrompt = `Based on this personal story, write a short, empathetic response story (2-3 sentences) that shows understanding and offers hope or perspective. Keep it authentic and supportive.
+
+Original story: "${text}"
+
+Write a response story:`
+
+        const aiResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [{ role: 'user', content: aiStoryPrompt }],
+            temperature: 0.7,
+            max_tokens: 200,
+          }),
+        })
+        
+        if (aiResponse.ok) {
+          const aiData = await aiResponse.json()
+          const generatedText = aiData.choices[0].message.content.trim()
+          
+          console.log('✅ AI story generated')
+          
+          const { data: suggestedStory } = await supabaseService
+            .from('suggested_stories')
+            .insert({
+              source_story_id: story.id,
+              target_language: language,
+              rewritten_text: generatedText,
+              audio_url: null,
+              model_versions: {
+                llm: 'llama-3.3-70b-versatile',
+                type: 'ai_generated_no_similar',
+                timestamp: new Date().toISOString(),
+              },
+            })
+            .select('id')
+            .single()
+          
+          if (suggestedStory) {
+            const { data: received } = await supabaseService
+              .from('user_received_stories')
+              .insert({
+                user_id: userId,
+                source_story_id: story.id,
+                suggested_story_id: suggestedStory.id,
+                is_read: false,
+              })
+              .select('id')
+              .single()
+            
+            if (received) {
+              receivedStoryId = received.id
+              console.log('🎉 AI fallback story sent to user:', received.id)
+            }
+          }
+        }
+      } catch (aiError) {
+        console.error('⚠️ AI fallback failed:', aiError)
+      }
     }
 
     return NextResponse.json({
