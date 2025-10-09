@@ -143,14 +143,70 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // SEND SIMILAR STORIES TO USER
-      if (similarStoryIds.length > 0) {
-        // PRIORITY 1: Use real similar stories if available
-        for (const similarStoryId of similarStoryIds.slice(0, 3)) { // Try up to 3 stories
+      // SEND SIMILAR STORIES TO USER - IMPROVED ALGORITHM
+      console.log('🔍 Finding similar stories using embeddings...')
+      
+      // Calculate similarity scores for all potential stories
+      const { data: allStories } = await supabaseService
+        .from('stories')
+        .select('id, text, archetype, emotion_tone, embedding')
+        .neq('id', story.id)
+        .eq('status', 'approved')
+        .not('embedding', 'is', null)
+        .limit(50) // Get more candidates for better matching
+      
+      if (allStories && allStories.length > 0 && embedding && embedding.length > 0) {
+        // Calculate cosine similarity for each story
+        const storiesWithSimilarity = allStories.map(s => {
+          const storyEmbedding = s.embedding as number[]
+          if (!storyEmbedding || storyEmbedding.length === 0) {
+            return { ...s, similarity: 0 }
+          }
+          
+          // Cosine similarity
+          let dotProduct = 0
+          let normA = 0
+          let normB = 0
+          for (let i = 0; i < Math.min(embedding.length, storyEmbedding.length); i++) {
+            dotProduct += embedding[i] * storyEmbedding[i]
+            normA += embedding[i] * embedding[i]
+            normB += storyEmbedding[i] * storyEmbedding[i]
+          }
+          const similarity = dotProduct / (Math.sqrt(normA) * Math.sqrt(normB))
+          
+          // Boost similarity if same archetype or emotion
+          let boostedSimilarity = similarity
+          if (s.archetype === classification.archetype) {
+            boostedSimilarity += 0.1
+          }
+          if (s.emotion_tone === classification.emotion_tone) {
+            boostedSimilarity += 0.05
+          }
+          
+          return { ...s, similarity: boostedSimilarity }
+        })
+        
+        // Sort by similarity (highest first)
+        storiesWithSimilarity.sort((a, b) => b.similarity - a.similarity)
+        
+        console.log('📊 Top 3 similar stories:', storiesWithSimilarity.slice(0, 3).map(s => ({
+          id: s.id,
+          similarity: s.similarity.toFixed(3),
+          archetype: s.archetype,
+          emotion: s.emotion_tone
+        })))
+        
+        // Try to send the most similar story
+        for (const similarStory of storiesWithSimilarity.slice(0, 3)) {
+          if (similarStory.similarity < 0.5) {
+            console.log('⚠️ Similarity too low (<0.5), skipping')
+            continue
+          }
+          
           const { data: existingSuggestion } = await supabaseService
             .from('suggested_stories')
             .select('id, rewritten_text')
-            .eq('source_story_id', similarStoryId)
+            .eq('source_story_id', similarStory.id)
             .eq('target_language', language)
             .limit(1)
             .single()
@@ -160,48 +216,60 @@ export async function POST(request: NextRequest) {
               .from('user_received_stories')
               .insert({
                 user_id: user.id,
-                source_story_id: similarStoryId,
+                source_story_id: similarStory.id,
                 suggested_story_id: existingSuggestion.id,
                 is_read: false,
               })
               .select('id')
               .single()
             
-            if (inserted && !receivedStoryId) {
+            if (inserted) {
               receivedStoryId = inserted.id
-              console.log('✅ Sent real similar story:', existingSuggestion.id)
-              break // Only send one story
+              console.log('✅ Sent highly similar story (similarity:', similarStory.similarity.toFixed(3), ')')
+              break
             }
           }
         }
       }
       
-      // PRIORITY 1.5: Try any story with same archetype in target language
+      // FALLBACK: Try any story with same archetype and emotion
       if (!receivedStoryId && classification.archetype) {
-        console.log('Trying to find any story with same archetype...')
-        const { data: anyArchetypeStory } = await supabaseService
-          .from('suggested_stories')
-          .select('id, source_story_id, rewritten_text')
-          .eq('target_language', language)
-          .neq('source_story_id', story.id)
+        console.log('🔄 Fallback: Finding story with same archetype and emotion...')
+        const { data: matchedStory } = await supabaseService
+          .from('stories')
+          .select('id')
+          .eq('archetype', classification.archetype)
+          .eq('emotion_tone', classification.emotion_tone)
+          .eq('status', 'approved')
+          .neq('id', story.id)
           .limit(1)
           .single()
         
-        if (anyArchetypeStory) {
-          const { data: inserted } = await supabaseService
-            .from('user_received_stories')
-            .insert({
-              user_id: user.id,
-              source_story_id: anyArchetypeStory.source_story_id,
-              suggested_story_id: anyArchetypeStory.id,
-              is_read: false,
-            })
+        if (matchedStory) {
+          const { data: existingSuggestion } = await supabaseService
+            .from('suggested_stories')
             .select('id')
+            .eq('source_story_id', matchedStory.id)
+            .eq('target_language', language)
+            .limit(1)
             .single()
           
-          if (inserted) {
-            receivedStoryId = inserted.id
-            console.log('✅ Sent archetype-matched story:', anyArchetypeStory.id)
+          if (existingSuggestion) {
+            const { data: inserted } = await supabaseService
+              .from('user_received_stories')
+              .insert({
+                user_id: user.id,
+                source_story_id: matchedStory.id,
+                suggested_story_id: existingSuggestion.id,
+                is_read: false,
+              })
+              .select('id')
+              .single()
+            
+            if (inserted) {
+              receivedStoryId = inserted.id
+              console.log('✅ Sent archetype+emotion matched story')
+            }
           }
         }
       }
