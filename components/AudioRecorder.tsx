@@ -71,7 +71,11 @@ export default function AudioRecorder({ onTranscriptionComplete, language }: Aud
           
           const formData = new FormData()
           formData.append('audio', audioBlob, 'recording.webm')
-          formData.append('language', language)
+          
+          // Convert language code for Whisper API (pt-BR -> pt, etc)
+          const whisperLanguage = language.split('-')[0]
+          console.log('🌍 Language:', language, '→', whisperLanguage)
+          formData.append('language', whisperLanguage)
 
           const response = await fetch('/api/transcribe', {
             method: 'POST',
