@@ -121,7 +121,8 @@ export default function SubmitPage() {
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className={theme.classes.select + ' w-full'}
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-red-600 hover:border-red-600 transition"
+              style={{ backgroundColor: '#1a1a1a', borderColor: '#3a3a3a' }}
             >
               <option value="en">English</option>
               <option value="pt-BR">Português (Brasil)</option>
@@ -135,13 +136,14 @@ export default function SubmitPage() {
           </div>
 
           {/* Consent */}
-          <div className={theme.classes.card}>
+          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6" style={{ backgroundColor: '#1a1a1a', borderColor: '#2a2a2a' }}>
             <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={consent}
                 onChange={(e) => setConsent(e.target.checked)}
-                className={theme.classes.checkbox + ' mt-1'}
+                className="w-4 h-4 text-red-600 bg-gray-900 border-gray-700 rounded focus:ring-red-600 mt-1"
+                style={{ backgroundColor: '#1a1a1a', borderColor: '#3a3a3a' }}
               />
               <div className="text-sm text-gray-300">
                 I consent to my story being anonymized, rewritten by AI, translated to multiple languages, and shared publicly on WowMe. 
@@ -187,7 +189,8 @@ export default function SubmitPage() {
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Share your feelings, secrets, dreams, or experiences... Be honest and authentic. Your identity is protected."
-                className={theme.classes.textarea}
+                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-red-600 transition resize-none"
+                style={{ backgroundColor: '#1a1a1a', borderColor: '#3a3a3a' }}
                 rows={10}
                 required
               />
