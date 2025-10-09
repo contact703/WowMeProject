@@ -41,15 +41,33 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get user
-    const { data: user } = await supabaseService
+    // Get or create user profile
+    let { data: user } = await supabaseService
       .from('profiles')
       .select('id')
       .eq('id', userId)
       .single()
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      console.log('⚠️ User profile not found, creating...')
+      // Create profile if it doesn't exist
+      const { data: newUser, error: profileError } = await supabaseService
+        .from('profiles')
+        .insert({
+          id: userId,
+          display_name: 'Anonymous User',
+          created_at: new Date().toISOString(),
+        })
+        .select('id')
+        .single()
+      
+      if (profileError) {
+        console.error('❌ Failed to create profile:', profileError)
+        return NextResponse.json({ error: 'Failed to create user profile' }, { status: 500 })
+      }
+      
+      user = newUser
+      console.log('✅ Profile created:', user.id)
     }
 
     // Step 1: Classify story
