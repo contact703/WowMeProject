@@ -105,14 +105,14 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-black text-white">
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="border-b border-white/10 backdrop-blur-sm bg-black/30 sticky top-0 z-50">
+      <header className="border-b border-gray-800 backdrop-blur-sm bg-black/95 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-2">
           {/* Logo - Compacto em mobile */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <span className="text-xl md:text-2xl">🌀</span>
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg shadow-red-600/50">
+              <span className="text-xl md:text-2xl">💭</span>
             </div>
             <h1 className="text-lg md:text-2xl font-bold hidden sm:block">WowMe</h1>
           </Link>
@@ -123,7 +123,7 @@ export default function Home() {
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="bg-white/10 border border-white/20 rounded-lg px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm"
+              className="bg-gray-900 border border-gray-700 rounded-lg px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm hover:border-red-600 transition"
             >
               <option value="en">English</option>
               <option value="pt-BR">Português</option>
@@ -136,7 +136,7 @@ export default function Home() {
                 {/* Profile - Compacto em mobile */}
                 <Link
                   href="/profile"
-                  className="bg-white/10 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:bg-white/20 transition whitespace-nowrap"
+                  className="bg-gray-900 border border-gray-700 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:border-red-600 hover:text-red-600 transition whitespace-nowrap"
                 >
                   <span className="inline md:hidden">👤</span>
                   <span className="hidden md:inline">{userName || 'Profile'}</span>
@@ -145,7 +145,7 @@ export default function Home() {
                 {/* Share Story - Compacto em mobile */}
                 <Link
                   href="/submit"
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:opacity-90 transition whitespace-nowrap"
+                  className="bg-red-600 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:bg-red-700 transition whitespace-nowrap shadow-lg shadow-red-600/30"
                 >
                   <span className="inline md:hidden">✨</span>
                   <span className="hidden md:inline">Share Story</span>
@@ -164,23 +164,23 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 text-center">
-        <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+      <section className="container mx-auto px-4 py-20 text-center border-b border-gray-800">
+        <h2 className="text-5xl md:text-6xl font-bold mb-6 text-white">
           {getTranslation(language, 'hero.title')}
         </h2>
-        <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
+        <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-10">
           {getTranslation(language, 'hero.subtitle')}
         </p>
         <div className="flex gap-4 justify-center flex-wrap">
           <Link
             href="/submit"
-            className="bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-3 rounded-lg font-medium text-lg hover:opacity-90 transition"
+            className="bg-red-600 px-8 py-4 rounded-lg font-medium text-lg hover:bg-red-700 transition shadow-lg shadow-red-600/30"
           >
             {getTranslation(language, 'hero.shareButton')}
           </Link>
           <Link
             href="#feed"
-            className="bg-white/10 px-8 py-3 rounded-lg font-medium text-lg hover:bg-white/20 transition"
+            className="bg-gray-900 border border-gray-700 px-8 py-4 rounded-lg font-medium text-lg hover:border-red-600 hover:text-red-600 transition"
           >
             {getTranslation(language, 'hero.exploreButton')}
           </Link>
@@ -205,15 +205,15 @@ export default function Home() {
             {suggestions.map((suggestion) => (
               <div
                 key={suggestion.id}
-                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-6 hover:border-purple-500/50 transition"
+                className="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-red-600 transition-all duration-300"
               >
                 <p className="text-lg leading-relaxed mb-4">{suggestion.rewritten_text}</p>
 
                 <div className="flex items-center gap-4 text-sm text-gray-400 flex-wrap">
                   <button
                     onClick={() => handleReaction(suggestion.id, 'heart')}
-                    className={`flex items-center gap-2 hover:text-pink-400 transition ${
-                      suggestion.user_reaction === 'heart' ? 'text-pink-400' : ''
+                    className={`flex items-center gap-2 hover:text-red-500 transition ${
+                      suggestion.user_reaction === 'heart' ? 'text-red-500' : ''
                     }`}
                   >
                     <span className="text-xl">❤️</span>
@@ -222,7 +222,7 @@ export default function Home() {
 
                   <button 
                     onClick={() => handleOpenComments(suggestion.id, suggestion.comment_count)}
-                    className="flex items-center gap-2 hover:text-blue-400 transition"
+                    className="flex items-center gap-2 hover:text-red-500 transition"
                   >
                     <span className="text-xl">💬</span>
                     <span>{suggestion.comment_count}</span>
@@ -241,7 +241,7 @@ export default function Home() {
                       utterance.rate = 0.9
                       window.speechSynthesis.speak(utterance)
                     }}
-                    className="flex items-center gap-2 hover:text-purple-400 transition"
+                    className="flex items-center gap-2 hover:text-red-500 transition"
                     title="Listen to story"
                   >
                     <span className="text-xl">🔊</span>
