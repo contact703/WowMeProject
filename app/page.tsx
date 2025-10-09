@@ -182,6 +182,7 @@ export default function Home() {
           <Link
             href="#feed"
             className="bg-gray-900 border border-gray-700 px-8 py-4 rounded-lg font-medium text-lg hover:border-red-600 hover:text-red-600 transition"
+            style={{ backgroundColor: '#1a1a1a', borderColor: '#3a3a3a' }}
           >
             {getTranslation(language, 'hero.exploreButton')}
           </Link>
