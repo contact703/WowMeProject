@@ -203,6 +203,8 @@ export async function POST(request: NextRequest) {
             continue
           }
           
+          // Check if translation already exists
+          let suggestionToSend = null
           const { data: existingSuggestion } = await supabaseService
             .from('suggested_stories')
             .select('id, rewritten_text')
@@ -212,12 +214,46 @@ export async function POST(request: NextRequest) {
             .single()
 
           if (existingSuggestion) {
+            suggestionToSend = existingSuggestion
+            console.log('📝 Using existing translation')
+          } else {
+            // Create translation on the fly
+            console.log('🔄 Creating new translation for similar story...')
+            try {
+              const rewritten = await rewriteStory(similarStory.text, language)
+              const translated = language !== 'en-US' ? await translateText(rewritten, 'en-US', language) : rewritten
+              
+              const { data: newSuggestion } = await supabaseService
+                .from('suggested_stories')
+                .insert({
+                  source_story_id: similarStory.id,
+                  target_language: language,
+                  rewritten_text: translated,
+                  audio_url: null,
+                  model_versions: {
+                    llm: 'llama-3.3-70b-versatile',
+                    timestamp: new Date().toISOString(),
+                  },
+                })
+                .select('id, rewritten_text')
+                .single()
+              
+              if (newSuggestion) {
+                suggestionToSend = newSuggestion
+                console.log('✅ Translation created successfully')
+              }
+            } catch (translationError) {
+              console.error('❌ Translation failed:', translationError)
+            }
+          }
+
+          if (suggestionToSend) {
             const { data: inserted } = await supabaseService
               .from('user_received_stories')
               .insert({
                 user_id: user.id,
                 source_story_id: similarStory.id,
-                suggested_story_id: existingSuggestion.id,
+                suggested_story_id: suggestionToSend.id,
                 is_read: false,
               })
               .select('id')
