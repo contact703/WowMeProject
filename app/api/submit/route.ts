@@ -90,11 +90,29 @@ Write a response story:`
       
       console.log('✅ AI story generated:', generatedText.substring(0, 50) + '...')
       
+      // Get a random story from database to use as source
+      console.log('🎲 Getting random story from database...')
+      const { data: randomStories } = await supabaseService
+        .from('stories')
+        .select('id')
+        .eq('status', 'approved')
+        .neq('user_id', userId) // Not from same user
+        .limit(10)
+      
+      let sourceStoryId = story.id // Default to current story if no others
+      if (randomStories && randomStories.length > 0) {
+        const randomIndex = Math.floor(Math.random() * randomStories.length)
+        sourceStoryId = randomStories[randomIndex].id
+        console.log(`✅ Using random story ${sourceStoryId} as source`)
+      } else {
+        console.log('⚠️ No other stories found, using current story as source')
+      }
+      
       // Create suggested_story
       const { data: suggestedStory, error: suggestedError } = await supabaseService
         .from('suggested_stories')
         .insert({
-          source_story_id: story.id,
+          source_story_id: sourceStoryId,
           target_language: language,
           rewritten_text: generatedText,
           audio_url: null,
@@ -119,7 +137,7 @@ Write a response story:`
         .from('user_received_stories')
         .insert({
           user_id: userId,
-          source_story_id: story.id,
+          source_story_id: sourceStoryId,
           suggested_story_id: suggestedStory.id,
           is_read: false,
         })
