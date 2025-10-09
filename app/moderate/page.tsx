@@ -100,9 +100,9 @@ export default function ModeratePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-black text-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-black text-white flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500 mb-4"></div>
           <p>Loading...</p>
         </div>
       </div>
@@ -110,12 +110,12 @@ export default function ModeratePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-black text-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-black text-white">
       {/* Header */}
       <header className="border-b border-white/10 backdrop-blur-sm bg-black/30">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-red-500 flex items-center justify-center">
               <span className="text-2xl">🌀</span>
             </div>
             <h1 className="text-2xl font-bold">WowMe</h1>
@@ -128,7 +128,7 @@ export default function ModeratePage() {
 
       {/* Moderation Panel */}
       <div className="container mx-auto px-4 py-12">
-        <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+        <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-red-400 to-red-400 bg-clip-text text-transparent">
           Moderation Panel
         </h2>
         <p className="text-gray-300 mb-8">
@@ -137,7 +137,7 @@ export default function ModeratePage() {
 
         {loading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
             <p className="mt-4 text-gray-400">Loading stories...</p>
           </div>
         ) : stories.length === 0 ? (
@@ -186,7 +186,7 @@ export default function ModeratePage() {
                     <button
                       onClick={() => handleProcess(story.id)}
                       disabled={processing === story.id}
-                      className="ml-auto bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-2 rounded-lg font-medium hover:opacity-90 transition disabled:opacity-50"
+                      className="ml-auto bg-gradient-to-r from-red-500 to-red-500 px-6 py-2 rounded-lg font-medium hover:opacity-90 transition disabled:opacity-50"
                     >
                       {processing === story.id ? 'Processing...' : '⚡ Process with AI'}
                     </button>

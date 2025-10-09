@@ -53,7 +53,7 @@ export default function AudioButton({ text, language }: AudioButtonProps) {
   return (
     <button
       onClick={isPlaying ? handleStop : handlePlay}
-      className="p-2 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 transition-colors"
+      className="p-2 rounded-lg bg-red-600/20 hover:bg-red-600/30 transition-colors"
       title={isPlaying ? 'Stop audio' : 'Play audio'}
     >
       {isPlaying ? '⏸️' : '🔊'}
