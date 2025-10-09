@@ -154,7 +154,7 @@ export default function Home() {
             ) : (
               <Link
                 href="/auth"
-                className="bg-gradient-to-r from-purple-500 to-pink-500 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:opacity-90 transition"
+                className="bg-red-600 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:bg-red-700 transition shadow-lg shadow-red-600/30"
               >
                 Sign In
               </Link>
@@ -193,7 +193,7 @@ export default function Home() {
 
         {loading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
             <p className="mt-4 text-gray-400">{getTranslation(language, 'feed.loading')}</p>
           </div>
         ) : suggestions.length === 0 ? (
