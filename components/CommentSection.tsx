@@ -1,6 +1,5 @@
-'use client'
-
 import { useState, useEffect } from 'react'
+import theme from '@/lib/theme'
 
 interface Comment {
   id: string
@@ -83,15 +82,16 @@ export default function CommentSection({ suggestedId, isOpen, onClose, initialCo
         }),
       })
 
-      if (response.ok) {
+      const data = await response.json()
+
+      if (data.success) {
         setNewComment('')
-        loadComments() // Reload comments
+        loadComments()
       } else {
-        const error = await response.json()
-        alert(error.error || 'Failed to post comment')
+        alert('Failed to post comment')
       }
     } catch (error) {
-      console.error('Error submitting comment:', error)
+      console.error('Error posting comment:', error)
       alert('Failed to post comment')
     } finally {
       setSubmitting(false)
@@ -102,49 +102,56 @@ export default function CommentSection({ suggestedId, isOpen, onClose, initialCo
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-gradient-to-br from-gray-900 to-purple-900 border border-white/20 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-2xl max-h-[80vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
-          <h3 className="text-2xl font-bold">💬 Comments ({comments.length})</h3>
+        <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-800">
+          <h3 className="text-xl md:text-2xl font-bold">Comments ({comments.length})</h3>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition text-2xl"
           >
-            ✕
+            ×
           </button>
         </div>
 
         {/* Comments List */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
           {loading ? (
             <div className="text-center py-8">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
-              <p className="mt-2 text-gray-400">Loading comments...</p>
+              <div className={theme.classes.spinner + ' h-8 w-8 mx-auto mb-2'}></div>
+              <p className="text-gray-400">Loading comments...</p>
             </div>
           ) : comments.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">
-              <p className="text-lg">No comments yet</p>
-              <p className="text-sm mt-2">Be the first to share your thoughts!</p>
+            <div className="text-center py-8">
+              <p className="text-gray-400 text-lg mb-2">No comments yet</p>
+              <p className="text-gray-500 text-sm">Be the first to share your thoughts!</p>
             </div>
           ) : (
             comments.map((comment) => (
-              <div
-                key={comment.id}
-                className="bg-white/5 rounded-lg p-4 border border-white/10"
-              >
+              <div key={comment.id} className={theme.classes.cardCompact}>
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl">👤</span>
+                  <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-xl flex-shrink-0">
+                    {comment.profiles?.avatar_url ? (
+                      <img 
+                        src={comment.profiles.avatar_url} 
+                        alt="Avatar" 
+                        className="w-full h-full rounded-full object-cover" 
+                      />
+                    ) : (
+                      '👤'
+                    )}
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium">{comment.profiles.display_name}</span>
-                      <span className="text-xs text-gray-400">
+                      <span className="font-medium text-white">
+                        {comment.profiles?.display_name || 'Anonymous'}
+                      </span>
+                      <span className="text-xs text-gray-500">
                         {new Date(comment.created_at).toLocaleDateString()}
                       </span>
                     </div>
-                    <p className="text-gray-200">{comment.text}</p>
+                    <p className="text-gray-300 break-words">{comment.text}</p>
                   </div>
                 </div>
               </div>
@@ -153,37 +160,43 @@ export default function CommentSection({ suggestedId, isOpen, onClose, initialCo
         </div>
 
         {/* Comment Form */}
-        <form onSubmit={handleSubmit} className="p-6 border-t border-white/10">
-          <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Share your thoughts... (AI will check for inappropriate content)"
-            className="w-full bg-white/5 border border-white/20 rounded-lg p-3 text-white placeholder-gray-400 resize-none focus:outline-none focus:border-purple-500 transition"
-            rows={3}
-            disabled={submitting}
-          />
-          
-          {moderating && (
-            <div className="mt-2 text-sm text-yellow-400 flex items-center gap-2">
-              <div className="inline-block animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-yellow-400"></div>
-              AI is checking your comment for inappropriate content...
-            </div>
-          )}
+        <div className="border-t border-gray-800 p-4 md:p-6">
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Share your thoughts..."
+              className={theme.classes.textarea + ' h-24'}
+              disabled={submitting}
+            />
+            
+            {moderating && (
+              <div className="text-sm text-yellow-500 flex items-center gap-2">
+                <div className={theme.classes.spinner + ' h-4 w-4'}></div>
+                AI is checking your comment...
+              </div>
+            )}
 
-          <div className="flex items-center justify-between mt-3">
-            <p className="text-xs text-gray-400">
-              ✨ Comments are moderated by AI to keep our community safe
-            </p>
-            <button
-              type="submit"
-              disabled={submitting || !newComment.trim()}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-2 rounded-lg font-medium hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {submitting ? 'Posting...' : 'Post Comment'}
-            </button>
-          </div>
-        </form>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-gray-500">
+                Comments are moderated by AI to keep our community safe
+              </p>
+              <button
+                type="submit"
+                disabled={submitting || !newComment.trim()}
+                className={`px-6 py-2 rounded-lg font-medium transition ${
+                  submitting || !newComment.trim()
+                    ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                    : 'bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-600/30'
+                }`}
+              >
+                {submitting ? 'Posting...' : 'Post Comment'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   )
 }
+

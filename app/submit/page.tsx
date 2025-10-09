@@ -5,11 +5,13 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import AudioRecorder from '@/components/AudioRecorder'
+import theme from '@/lib/theme'
 
 export default function SubmitPage() {
   const [text, setText] = useState('')
   const [language, setLanguage] = useState('en')
   const [consent, setConsent] = useState(false)
+  const [consent2, setConsent2] = useState(false)
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
@@ -30,8 +32,8 @@ export default function SubmitPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!consent) {
-      alert('Please agree to the consent terms')
+    if (!consent || !consent2) {
+      alert('Please agree to both consent terms')
       return
     }
 
@@ -55,6 +57,7 @@ export default function SubmitPage() {
         alert('✨ Story submitted successfully! Check out a similar story from someone else...')
         setText('')
         setConsent(false)
+        setConsent2(false)
         
         // Redirect to received story page if available
         if (data.receivedStoryId) {
@@ -75,52 +78,50 @@ export default function SubmitPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-black text-white flex items-center justify-center">
+      <div className={theme.classes.page + ' flex items-center justify-center'}>
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
-          <p>Loading...</p>
+          <div className={theme.classes.spinner + ' h-12 w-12 mb-4'}></div>
+          <p className="text-gray-400">Loading...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-black text-white">
+    <div className={theme.classes.page}>
       {/* Header */}
-      <header className="border-b border-white/10 backdrop-blur-sm bg-black/30">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <span className="text-2xl">🌀</span>
+      <header className={theme.classes.header}>
+        <div className={theme.classes.headerInner}>
+          <Link href="/" className={theme.classes.logo}>
+            <div className={theme.classes.logoIcon}>
+              <span className="text-xl md:text-2xl">💭</span>
             </div>
-            <h1 className="text-2xl font-bold">WowMe</h1>
+            <h1 className={theme.classes.logoText}>WowMe</h1>
           </Link>
-          <Link href="/" className="text-gray-400 hover:text-white transition">
+          <Link href="/" className="text-gray-400 hover:text-white transition text-sm md:text-base">
             ← Back to Feed
           </Link>
         </div>
       </header>
 
-      {/* Submit Form */}
-      <div className="container mx-auto px-4 py-12 max-w-2xl">
-        <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-          Share Your Story
-        </h2>
-        <p className="text-gray-300 mb-8">
-          Your story will be anonymized, rewritten by AI, and shared with the world in multiple languages. 
-          Your voice will be transformed to protect your identity.
-        </p>
+      {/* Content */}
+      <div className={theme.classes.container + ' py-8 md:py-12 max-w-2xl'}>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Share Your Story</h2>
+          <p className="text-gray-400 text-lg">
+            Your story will be anonymized, rewritten by AI, and shared with the world in multiple languages.
+            Your voice will be transformed to protect your identity.
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Language Selector */}
           <div>
-            <label htmlFor="language" className="block text-sm font-medium mb-2">
-              Language
-            </label>
+            <label className={theme.classes.label}>Language</label>
             <select
-              id="language"
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white"
+              className={theme.classes.select + ' w-full'}
             >
               <option value="en">English</option>
               <option value="pt-BR">Português (Brasil)</option>
@@ -133,18 +134,17 @@ export default function SubmitPage() {
             </select>
           </div>
 
-          {/* Consent First */}
-          <div className="bg-white/5 border border-white/20 rounded-lg p-6 mb-6">
+          {/* First Consent */}
+          <div className={theme.classes.card}>
             <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={consent}
                 onChange={(e) => setConsent(e.target.checked)}
-                className="mt-1 w-5 h-5 rounded border-white/20 bg-white/10 text-purple-500 focus:ring-purple-500"
-                required
+                className={theme.classes.checkbox + ' mt-1'}
               />
               <div className="text-sm text-gray-300">
-                <p className="font-medium mb-2">I consent to:</p>
+                <div className="font-medium mb-2">I consent to:</div>
                 <ul className="space-y-1 text-gray-400">
                   <li>• My story being anonymized and rewritten by AI</li>
                   <li>• My voice being transformed (if using audio)</li>
@@ -155,105 +155,96 @@ export default function SubmitPage() {
             </label>
           </div>
 
-          {/* Input Mode Toggle */}
-          <div className="flex gap-2 mb-4">
+          {/* Input Mode Selector */}
+          <div className="flex gap-4">
             <button
               type="button"
               onClick={() => setInputMode('text')}
-              disabled={!consent}
-              className={`flex-1 py-2 px-4 rounded-lg transition ${
+              className={`flex-1 py-3 rounded-lg font-medium transition ${
                 inputMode === 'text'
-                  ? 'bg-purple-500 text-white'
-                  : 'bg-white/10 text-gray-400 hover:bg-white/20'
-              } ${!consent ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-900 border border-gray-700 text-gray-300 hover:border-red-600'
+              }`}
             >
               ✍️ Write Text
             </button>
             <button
               type="button"
               onClick={() => setInputMode('audio')}
-              disabled={!consent}
-              className={`flex-1 py-2 px-4 rounded-lg transition ${
+              className={`flex-1 py-3 rounded-lg font-medium transition ${
                 inputMode === 'audio'
-                  ? 'bg-purple-500 text-white'
-                  : 'bg-white/10 text-gray-400 hover:bg-white/20'
-              } ${!consent ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-900 border border-gray-700 text-gray-300 hover:border-red-600'
+              }`}
             >
               🎤 Record Audio
             </button>
           </div>
 
-          <div>
-            <label htmlFor="text" className="block text-sm font-medium mb-2">
-              Your Story
-            </label>
-            
-            {inputMode === 'text' ? (
-              <>
-                <textarea
-                  id="text"
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  placeholder="Share your feelings, secrets, dreams, or experiences... Be honest and authentic. Your identity is protected."
-                  rows={10}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
-                  required
-                />
-                <p className="text-sm text-gray-400 mt-2">
-                  {text.length} characters
-                </p>
-              </>
-            ) : (
-              <div className="bg-white/10 border border-white/20 rounded-lg p-8">
-                <AudioRecorder
-                  language={language}
-                  onTranscriptionComplete={(transcribedText, blob) => {
-                    setText(transcribedText)
-                    setAudioBlob(blob)
-                    setInputMode('text')
-                  }}
-                />
-                <p className="text-sm text-gray-400 mt-4 text-center">
-                  Click to record your story. It will be transcribed automatically.
-                </p>
-              </div>
-            )}
-          </div>
+          {/* Text Input */}
+          {inputMode === 'text' ? (
+            <div>
+              <label className={theme.classes.label}>Your Story</label>
+              <textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Share your feelings, secrets, dreams, or experiences... Be honest and authentic. Your identity is protected."
+                className={theme.classes.textarea}
+                rows={10}
+                required
+              />
+              <div className="text-sm text-gray-500 mt-2">{text.length} characters</div>
+            </div>
+          ) : (
+            <div>
+              <label className={theme.classes.label}>Record Your Story</label>
+              <AudioRecorder
+                language={language}
+                onTranscriptionComplete={(transcription) => {
+                  setText(transcription)
+                  setInputMode('text')
+                }}
+              />
+            </div>
+          )}
 
-          <div className="bg-white/5 border border-white/20 rounded-lg p-6">
+          {/* Second Consent */}
+          <div className={theme.classes.card}>
             <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
-                checked={consent}
-                onChange={(e) => setConsent(e.target.checked)}
-                className="mt-1 w-5 h-5 rounded border-white/20"
-                required
+                checked={consent2}
+                onChange={(e) => setConsent2(e.target.checked)}
+                className={theme.classes.checkbox + ' mt-1'}
               />
-              <span className="text-sm text-gray-300">
-                I consent to my story being anonymized, rewritten by AI, translated to multiple languages, 
-                and shared publicly on WowMe. I understand that my original text will never be exposed, 
-                and my voice (if recorded) will be transformed to protect my identity. I confirm this is 
-                my personal experience and I have the right to share it.
-              </span>
+              <div className="text-sm text-gray-300">
+                I consent to my story being anonymized, rewritten by AI, translated to multiple languages, and shared publicly on WowMe. 
+                I understand that my original text will never be exposed, and my voice (if recorded) will be transformed to protect my identity. 
+                I confirm this is my personal experience and I have the right to share it.
+              </div>
             </label>
           </div>
 
+          {/* Submit Button */}
           <button
             type="submit"
-            disabled={loading || !consent}
-            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-4 rounded-lg font-medium text-lg hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading || !consent || !consent2 || text.trim().length < 10}
+            className={`w-full py-4 rounded-lg font-medium text-lg transition ${
+              loading || !consent || !consent2 || text.trim().length < 10
+                ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                : 'bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-600/30'
+            }`}
           >
             {loading ? 'Submitting...' : 'Submit Story'}
           </button>
-        </form>
 
-        <div className="mt-8 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-          <p className="text-sm text-yellow-200">
+          <p className="text-sm text-gray-500 text-center">
             <strong>Note:</strong> Your story will be reviewed by moderators before being processed and published. 
             This helps ensure a safe and respectful community.
           </p>
-        </div>
+        </form>
       </div>
     </div>
   )
 }
+
