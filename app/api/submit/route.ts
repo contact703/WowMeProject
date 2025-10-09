@@ -121,16 +121,19 @@ export async function POST(request: NextRequest) {
       
       // Calculate similarities
       const similarities = allStories
-        .filter(s => s.stories_embeddings && s.stories_embeddings.embedding)
-        .map(s => ({
-          id: s.id,
-          text: s.text,
-          language: s.language,
-          archetype: s.stories_embeddings.archetype,
-          emotion_tone: s.stories_embeddings.emotion_tone,
-          embedding: s.stories_embeddings.embedding,
-          similarity: cosineSimilarity(embedding, s.stories_embeddings.embedding)
-        }))
+        .filter(s => s.stories_embeddings && Array.isArray(s.stories_embeddings) && s.stories_embeddings.length > 0 && s.stories_embeddings[0].embedding)
+        .map(s => {
+          const emb = Array.isArray(s.stories_embeddings) ? s.stories_embeddings[0] : s.stories_embeddings
+          return {
+            id: s.id,
+            text: s.text,
+            language: s.language,
+            archetype: emb.archetype,
+            emotion_tone: emb.emotion_tone,
+            embedding: emb.embedding,
+            similarity: cosineSimilarity(embedding, emb.embedding)
+          }
+        })
       
       // Sort by similarity
       similarities.sort((a, b) => b.similarity - a.similarity)
