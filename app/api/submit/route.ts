@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { classifyStory } from '@/lib/services/ai/classification'
-import { rewriteStory } from '@/lib/services/ai/rewriter'
-import { translateText } from '@/lib/services/translation/deepl'
-import { generateEmbedding } from '@/lib/services/ai/embeddings'
+import { generateEmbedding, classifyStory } from '@/lib/services/ai/embeddings'
+import { rewriteStory } from '@/lib/services/ai/rewrite'
+import { translateText } from '@/lib/services/ai/translation'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -58,7 +57,6 @@ export async function POST(request: NextRequest) {
     const classification = await classifyStory(text)
     console.log('   Archetype:', classification.archetype)
     console.log('   Emotion:', classification.emotion_tone)
-    console.log('   Themes:', classification.themes?.join(', '))
 
     // Step 2: Generate embedding
     console.log('🧠 Generating embedding...')
@@ -75,7 +73,6 @@ export async function POST(request: NextRequest) {
         language,
         archetype: classification.archetype,
         emotion_tone: classification.emotion_tone,
-        themes: classification.themes || [],
         embedding,
         status: 'approved',
       })
