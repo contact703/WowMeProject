@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import AudioRecorder from '@/components/AudioRecorder'
 import theme from '@/lib/theme'
+import { ThoughtIcon, PenIcon, MicIcon, ArrowLeftIcon } from '@/components/Icons'
 
 export default function SubmitPage() {
   const [text, setText] = useState('')
@@ -47,7 +48,7 @@ export default function SubmitPage() {
       const response = await fetch('/api/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, language, consent }),
+        body: JSON.stringify({ text, language, consent, userId: user.id }),
       })
 
       const data = await response.json()
@@ -92,12 +93,13 @@ export default function SubmitPage() {
         <div className={theme.classes.headerInner}>
           <Link href="/" className={theme.classes.logo}>
             <div className={theme.classes.logoIcon}>
-              <span className="text-xl md:text-2xl">💭</span>
+              <ThoughtIcon className="text-white" size={20} />
             </div>
             <h1 className={theme.classes.logoText}>WowMe</h1>
           </Link>
-          <Link href="/" className="text-gray-400 hover:text-white transition text-sm md:text-base">
-            ← Back to Feed
+          <Link href="/" className="text-gray-400 hover:text-white transition text-sm md:text-base flex items-center gap-2">
+            <ArrowLeftIcon size={16} />
+            <span>Back to Feed</span>
           </Link>
         </div>
       </header>
@@ -154,24 +156,26 @@ export default function SubmitPage() {
             <button
               type="button"
               onClick={() => setInputMode('text')}
-              className={`flex-1 py-3 rounded-lg font-medium transition ${
+              className={`flex-1 py-3 rounded-lg font-medium transition flex items-center justify-center gap-2 ${
                 inputMode === 'text'
                   ? 'bg-red-600 text-white'
                   : 'bg-gray-900 border border-gray-700 text-gray-300 hover:border-red-600'
               }`}
             >
-              ✍️ Write Text
+              <PenIcon size={20} />
+              <span>Write Text</span>
             </button>
             <button
               type="button"
               onClick={() => setInputMode('audio')}
-              className={`flex-1 py-3 rounded-lg font-medium transition ${
+              className={`flex-1 py-3 rounded-lg font-medium transition flex items-center justify-center gap-2 ${
                 inputMode === 'audio'
                   ? 'bg-red-600 text-white'
                   : 'bg-gray-900 border border-gray-700 text-gray-300 hover:border-red-600'
               }`}
             >
-              🎤 Record Audio
+              <MicIcon size={20} />
+              <span>Record Audio</span>
             </button>
           </div>
 

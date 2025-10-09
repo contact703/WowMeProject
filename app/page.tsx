@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { getTranslation } from '@/lib/translations'
 import CommentSection from '@/components/CommentSection'
+import { ThoughtIcon, UserIcon, SparklesIcon, HeartIcon, HeartFilledIcon, MessageIcon, SpeakerIcon, GlobeIcon } from '@/components/Icons'
 
 interface Suggestion {
   id: string
@@ -112,7 +113,7 @@ export default function Home() {
           {/* Logo - Compacto em mobile */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg shadow-red-600/50">
-              <span className="text-xl md:text-2xl">💭</span>
+              <ThoughtIcon className="text-white" size={20} />
             </div>
             <h1 className="text-lg md:text-2xl font-bold hidden sm:block">WowMe</h1>
           </Link>
@@ -136,18 +137,18 @@ export default function Home() {
                 {/* Profile - Compacto em mobile */}
                 <Link
                   href="/profile"
-                  className="bg-gray-900 border border-gray-700 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:border-red-600 hover:text-red-600 transition whitespace-nowrap"
+                  className="bg-gray-900 border border-gray-700 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:border-red-600 hover:text-red-600 transition whitespace-nowrap flex items-center gap-2"
                 >
-                  <span className="inline md:hidden">👤</span>
+                  <UserIcon size={18} className="md:hidden" />
                   <span className="hidden md:inline">{userName || 'Profile'}</span>
                 </Link>
                 
                 {/* Share Story - Compacto em mobile */}
                 <Link
                   href="/submit"
-                  className="bg-red-600 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:bg-red-700 transition whitespace-nowrap shadow-lg shadow-red-600/30"
+                  className="bg-red-600 px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-base font-medium hover:bg-red-700 transition whitespace-nowrap shadow-lg shadow-red-600/30 flex items-center gap-2"
                 >
-                  <span className="inline md:hidden">✨</span>
+                  <SparklesIcon size={18} className="md:hidden" />
                   <span className="hidden md:inline">Share Story</span>
                 </Link>
               </>
@@ -216,7 +217,11 @@ export default function Home() {
                       suggestion.user_reaction === 'heart' ? 'text-red-500' : ''
                     }`}
                   >
-                    <span className="text-xl">❤️</span>
+                    {suggestion.user_reaction === 'heart' ? (
+                      <HeartFilledIcon size={20} />
+                    ) : (
+                      <HeartIcon size={20} />
+                    )}
                     <span>{suggestion.reaction_count}</span>
                   </button>
 
@@ -224,7 +229,7 @@ export default function Home() {
                     onClick={() => handleOpenComments(suggestion.id, suggestion.comment_count)}
                     className="flex items-center gap-2 hover:text-red-500 transition"
                   >
-                    <span className="text-xl">💬</span>
+                    <MessageIcon size={20} />
                     <span>{suggestion.comment_count}</span>
                   </button>
 
@@ -244,7 +249,7 @@ export default function Home() {
                     className="flex items-center gap-2 hover:text-red-500 transition"
                     title="Listen to story"
                   >
-                    <span className="text-xl">🔊</span>
+                    <SpeakerIcon size={20} />
                   </button>
 
                   <span className="ml-auto flex items-center gap-2">
