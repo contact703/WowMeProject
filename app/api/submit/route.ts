@@ -41,34 +41,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get or create user profile
-    let { data: user } = await supabaseService
-      .from('profiles')
-      .select('id')
-      .eq('id', userId)
-      .single()
-
-    if (!user) {
-      console.log('⚠️ User profile not found, creating...')
-      // Create profile if it doesn't exist
-      const { data: newUser, error: profileError } = await supabaseService
-        .from('profiles')
-        .insert({
-          id: userId,
-          display_name: 'Anonymous User',
-          created_at: new Date().toISOString(),
-        })
-        .select('id')
-        .single()
-      
-      if (profileError) {
-        console.error('❌ Failed to create profile:', profileError)
-        return NextResponse.json({ error: 'Failed to create user profile' }, { status: 500 })
-      }
-      
-      user = newUser
-      console.log('✅ Profile created:', user.id)
-    }
+    // Verify user exists in auth (no need to check profiles table)
+    console.log('👤 User ID:', userId)
 
     // Step 1: Classify story
     console.log('🔍 Classifying story...')
@@ -86,7 +60,7 @@ export async function POST(request: NextRequest) {
     const { data: story, error: storyError } = await supabaseService
       .from('stories')
       .insert({
-        user_id: user.id,
+        user_id: userId,
         text,
         language,
         archetype: classification.archetype,
@@ -185,7 +159,7 @@ export async function POST(request: NextRequest) {
           const { data: received } = await supabaseService
             .from('user_received_stories')
             .insert({
-              user_id: user.id,
+              user_id: userId,
               source_story_id: bestMatch.id,
               suggested_story_id: suggestedStory.id,
               is_read: false,
