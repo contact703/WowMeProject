@@ -98,7 +98,7 @@ Your similar story (first person):`
     const aiData = await aiResponse.json()
     const generatedText = aiData.choices[0].message.content.trim()
     
-    console.log('✅ AI story generated:', generatedText.substring(0, 50) + '...')
+    console.log('✅ AI similar story generated:', generatedText.substring(0, 50) + '...')
     
     // Get a random story from database to use as source
     console.log('🎲 Getting random story from database...')
