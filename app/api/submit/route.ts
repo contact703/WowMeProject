@@ -60,11 +60,11 @@ export async function POST(request: NextRequest) {
     let receivedStoryId = null
     
     try {
-      const aiStoryPrompt = `Based on this personal story, write a short, empathetic response story (2-3 sentences) that shows understanding and offers hope or perspective. Keep it authentic and supportive.
+      const aiStoryPrompt = `Based on this personal story, write a similar personal story (2-3 sentences) in first person, as if you are someone who experienced something similar. Share your own story, do NOT respond to the person or give advice. Write as "I" and share your personal experience.
 
 Original story: "${text}"
 
-Write a response story:`
+Write your similar story (first person):`
 
       const aiResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
