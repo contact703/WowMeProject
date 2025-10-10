@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getLanguageFlag, getLanguageName } from '@/lib/flags'
+import { countries, getCountryFlag } from '@/lib/countries'
 import theme from '@/lib/theme'
 
 interface Story {
@@ -41,6 +42,8 @@ export default function ProfilePage() {
   const [receivedStories, setReceivedStories] = useState<ReceivedStory[]>([])
   const [activeTab, setActiveTab] = useState<'sent' | 'received'>('sent')
   const [loading, setLoading] = useState(true)
+  const [editingCountry, setEditingCountry] = useState(false)
+  const [selectedCountry, setSelectedCountry] = useState('US')
   const router = useRouter()
 
   useEffect(() => {
@@ -66,6 +69,7 @@ export default function ProfilePage() {
       .single()
     
     setProfile(profileData)
+    setSelectedCountry(profileData?.country || 'US')
 
     // Get my stories
     const { data: storiesData } = await supabase
@@ -109,15 +113,27 @@ export default function ProfilePage() {
     }
     setLoading(false)
   }
-
   const markAsRead = async (receivedStoryId: string) => {
     const supabase = createClient()
+    
     await supabase
       .from('user_received_stories')
       .update({ is_read: true })
       .eq('id', receivedStoryId)
     
     // Reload
+    loadProfile()
+  }
+
+  const updateCountry = async () => {
+    const supabase = createClient()
+    
+    await supabase
+      .from('profiles')
+      .update({ country: selectedCountry })
+      .eq('user_id', user.id)
+    
+    setEditingCountry(false)
     loadProfile()
   }
 
@@ -171,7 +187,45 @@ export default function ProfilePage() {
             </div>
             <div className="flex-1 w-full">
               <h2 className="text-2xl md:text-3xl font-bold mb-2">{profile?.display_name || 'Anonymous User'}</h2>
-              <p className="text-gray-400 mb-6">{profile?.bio || 'No bio yet'}</p>
+              <p className="text-gray-400 mb-4">{profile?.bio || 'No bio yet'}</p>
+              
+              {/* Country Selector */}
+              <div className="mb-6">
+                {!editingCountry ? (
+                  <button
+                    onClick={() => setEditingCountry(true)}
+                    className="flex items-center gap-2 text-gray-300 hover:text-white transition"
+                  >
+                    <span className="text-2xl">{getCountryFlag(profile?.country || 'US')}</span>
+                    <span className="text-sm">Change country</span>
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={selectedCountry}
+                      onChange={(e) => setSelectedCountry(e.target.value)}
+                      className="bg-gray-800 text-white border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-red-500"
+                    >
+                      {countries.map(country => (
+                        <option key={country.code} value={country.code}>
+                          {country.flag} {country.name}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={updateCountry}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm transition"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingCountry(false)}
+                      className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm transition"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}</div>
               <div className="grid grid-cols-3 gap-4 md:gap-6">
                 <div className="text-center md:text-left">
                   <div className="text-xl md:text-2xl font-bold text-red-500">{stats.total_stories_sent}</div>

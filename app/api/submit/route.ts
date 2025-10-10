@@ -66,11 +66,11 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ GROQ_API_KEY is defined')
     
-    const aiStoryPrompt = `Based on this personal story, write a short, empathetic response story (2-3 sentences) that shows understanding and offers hope or perspective. Keep it authentic and supportive.
+    const aiStoryPrompt = `Based on this personal story, write a similar personal story (2-3 sentences) in first person, as if you are someone who experienced something similar. Share your own experience authentically. Do NOT respond to the person or give advice. Write your own story.
 
 Original story: "${text}"
 
-Write a response story:`
+Your similar story (first person):`
 
     console.log('📤 Calling GROQ API...')
     const aiResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
