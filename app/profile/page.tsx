@@ -128,10 +128,22 @@ export default function ProfilePage() {
   const updateCountry = async () => {
     const supabase = createClient()
     
-    await supabase
+    // Use upsert to create profile if it doesn't exist
+    const { error } = await supabase
       .from('profiles')
-      .update({ country: selectedCountry })
-      .eq('user_id', user.id)
+      .upsert({ 
+        user_id: user.id,
+        country: selectedCountry,
+        display_name: profile?.display_name || user.email?.split('@')[0] || 'Anonymous'
+      }, {
+        onConflict: 'user_id'
+      })
+    
+    if (error) {
+      console.error('Error updating country:', error)
+      alert('Failed to update country. Please try again.')
+      return
+    }
     
     setEditingCountry(false)
     loadProfile()
