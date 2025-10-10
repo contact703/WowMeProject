@@ -10,6 +10,7 @@ export async function POST(request: NextRequest) {
   try {
     const { text, language, userId } = await request.json()
 
+    // Force rebuild timestamp: 2025-10-10T14:52:00Z
     console.log('📝 Starting story submission...')
     console.log('   Language:', language)
     console.log('   Text length:', text.length)
