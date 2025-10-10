@@ -60,11 +60,27 @@ export async function POST(request: NextRequest) {
     let receivedStoryId = null
     
     try {
-      const aiStoryPrompt = `Based on this personal story, write a similar personal story (2-3 sentences) in first person, as if you are someone who experienced something similar. Share your own story, do NOT respond to the person or give advice. Write as "I" and share your personal experience.
+      const aiStoryPrompt = `You are someone sharing your own personal story. Write a similar story (2-3 sentences) in FIRST PERSON about your own experience.
 
-Original story: "${text}"
+RULES:
+- Write ONLY in first person ("I", "me", "my")
+- Share YOUR OWN similar experience
+- DO NOT respond to the person
+- DO NOT give advice or comments
+- DO NOT use "you" or "your"
+- Just tell your own story
 
-Write your similar story (first person):`
+EXAMPLES:
+Original: "I finally got promoted after 5 years of hard work!"
+Your story: "I remember when I got my promotion last year. I had worked so hard for it, and when my boss called me into her office, I couldn't believe it was finally happening."
+
+Original: "My dog passed away yesterday and I'm heartbroken."
+Your story: "I lost my cat two years ago and the pain was unbearable. I still think about her every day and miss her gentle purr in the mornings."
+
+Now write YOUR story based on this:
+"${text}"
+
+Your similar story (first person only):`
 
       const aiResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
@@ -86,7 +102,34 @@ Write your similar story (first person):`
       }
       
       const aiData = await aiResponse.json()
-      const generatedText = aiData.choices[0].message.content.trim()
+      let generatedText = aiData.choices[0].message.content.trim()
+      
+      // Validate that the response is in first person
+      const hasFirstPerson = /\b(I|me|my|mine|myself)\b/i.test(generatedText)
+      const hasSecondPerson = /\b(you|your|yours|yourself)\b/i.test(generatedText)
+      
+      if (!hasFirstPerson || hasSecondPerson) {
+        console.warn('⚠️ AI response not in first person, regenerating...')
+        // Try one more time with stronger prompt
+        const retryPrompt = `Write ONLY a personal story in first person (I, me, my). NO advice, NO "you". Just YOUR story: ${text}`
+        const retryResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [{ role: 'user', content: retryPrompt }],
+            temperature: 0.8,
+            max_tokens: 200,
+          }),
+        })
+        if (retryResponse.ok) {
+          const retryData = await retryResponse.json()
+          generatedText = retryData.choices[0].message.content.trim()
+        }
+      }
       
       console.log('✅ AI story generated:', generatedText.substring(0, 50) + '...')
       
